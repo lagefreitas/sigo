@@ -1,0 +1,4 @@
+fastapi>=0.110
+uvicorn>=0.29
+playwright>=1.44
+pypdf>=4.0

@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sigo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#F7F7F4; --surface:#FFFFFF; --ink:#17191C; --ink2:#3A3E44; --muted:#5B6068; --faint:#8A8F96;
+  --line:#E7E6E1; --line2:#EFEEE9; --field:#D9D8D2;
+  --accent:#2952CC; --accent-ink:#1E3F9E; --accent-soft:#EEF2FC;
+  --red:#B42318; --red-soft:#FDECEA; --amber:#8A4B00; --amber-soft:#FDF3E2;
+  --green:#1D7A4A; --green-ink:#155C38; --green-soft:#F1F9F4; --green-line:#CDE7D8; --neutral-soft:#EFEEE9;
+  --on-accent:#FFFFFF; --r:16px; --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root{
+  --ground:#121315; --surface:#1B1C1F; --ink:#ECEDEE; --ink2:#C9CBCE; --muted:#A0A4AA; --faint:#7D8188;
+  --line:#2B2D31; --line2:#25272A; --field:#3A3D42;
+  --accent:#7C9BF2; --accent-ink:#A9BDF7; --accent-soft:#1F2A44;
+  --red:#F2847A; --red-soft:#3A1E1C; --amber:#F0B45E; --amber-soft:#382A16;
+  --on-accent:#0E1630; --green:#5FC28E; --green-ink:#8CD8AF; --green-soft:#16271E; --green-line:#24453A; --neutral-soft:#2A2C30;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font:15px/1.5 'Instrument Sans',system-ui,-apple-system,sans-serif}
+a{color:var(--accent)} a:hover{color:var(--accent-ink)}
+button{font:inherit;color:inherit}
+.mono{font-family:var(--mono)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+[hidden]{display:none!important}
+
+header.top{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.top .in{max-width:1120px;margin:0 auto;padding:0 32px;height:64px;display:flex;align-items:center;gap:32px}
+.marca{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;letter-spacing:-.01em}
+.marca i{width:22px;height:22px;border-radius:6px;background:var(--accent);display:inline-block}
+nav.vistas{display:flex;gap:4px;align-self:stretch}
+nav.vistas button{border:0;background:none;padding:0 14px;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer;font-size:15px}
+nav.vistas button.on{color:var(--ink);font-weight:600;border-bottom-color:var(--accent)}
+.status{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted)}
+.status .pt{width:8px;height:8px;border-radius:50%;background:var(--faint);flex:none}
+.status .pt.on{background:var(--green)} .status .pt.off{background:var(--red)}
+.status b{color:var(--ink);font-weight:500}
+
+main{max-width:1120px;margin:0 auto;padding:40px 32px 72px;display:flex;flex-direction:column;gap:36px}
+h1{margin:0;font-size:32px;font-weight:700;letter-spacing:-.01em;line-height:1.2}
+.lbl{margin:0;font-size:12.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.sub{margin:0;font-size:17px;color:var(--muted)} .sub b{color:var(--ink)}
+.cinza{color:var(--muted)} .peq{font-size:13px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;border:1px solid var(--field);background:var(--surface);color:var(--ink);white-space:nowrap}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.pri:hover{background:var(--accent-ink);color:var(--on-accent)}
+.btn.leve{border-color:transparent;background:transparent;color:var(--muted)}
+.btn.suave{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.btn:disabled{opacity:.55;cursor:default}
+.btn svg{flex:none}
+.pill{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:999px;font-size:13px;font-weight:600;white-space:nowrap}
+.pill i{width:7px;height:7px;border-radius:50%;background:currentColor}
+.p-red{background:var(--red-soft);color:var(--red)} .p-amber{background:var(--amber-soft);color:var(--amber)}
+.p-blue{background:var(--accent-soft);color:var(--accent)} .p-green{background:var(--green-soft);color:var(--green-ink)}
+.p-neutro{background:var(--neutral-soft);color:var(--ink2)}
+.cartao{background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.aviso{padding:14px 18px;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
+.aviso.erro{border-color:var(--red);color:var(--red)}
+.carregando{color:var(--muted);padding:28px 0;display:flex;align-items:center;gap:10px}
+.carregando::before{content:"";width:16px;height:16px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--accent);animation:gira .8s linear infinite;flex:none}
+@keyframes gira{to{transform:rotate(360deg)}}
+
+.cab{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.cab .tit{display:flex;flex-direction:column;gap:6px}
+.cab .acao{display:flex;align-items:center;gap:14px}
+.grade2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.at{padding:24px;display:flex;flex-direction:column;gap:16px}
+.at .l1{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.at h3{margin:0;font-size:19px;font-weight:600;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.at .frase{margin:6px 0 0;font-size:15px;line-height:1.5;color:var(--ink2)}
+.fatos{display:flex;gap:24px;padding:14px 0;border-top:1px solid var(--line2);border-bottom:1px solid var(--line2);font-size:14px;flex-wrap:wrap}
+.fatos div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.fatos span{color:var(--muted);font-size:12.5px}
+.fatos b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px}
+.at .botoes{display:flex;gap:10px;flex-wrap:wrap;margin-top:auto}
+.lista{overflow:hidden}
+.lin{display:grid;grid-template-columns:minmax(0,2.4fr) minmax(0,1.6fr) 96px 24px;gap:16px;align-items:center;padding:16px 24px;color:var(--ink);border:0;border-bottom:1px solid var(--line2);background:none;width:100%;text-align:left;cursor:pointer}
+.lin:last-child{border-bottom:0}
+.lin:hover{background:color-mix(in srgb,var(--accent-soft) 45%,transparent)}
+.lin.cabl{cursor:default;padding:12px 24px;font-size:12.5px;color:var(--muted)}
+.lin.cabl:hover{background:none}
+.lin .t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.lin .t b{font-weight:600;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lin .t span{font-size:12.5px;color:var(--muted)}
+.lin .u{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lin .d{text-align:right;font-size:14px;font-weight:600}
+.vazio{padding:28px;text-align:center;color:var(--muted)}
+
+.busca{display:flex;gap:10px}
+.campo{flex:1;min-width:0;display:flex;align-items:center;gap:12px;height:56px;padding:0 18px;background:var(--surface);border:1px solid var(--field);border-radius:12px}
+.campo:focus-within{outline:2px solid var(--accent);outline-offset:-1px}
+.campo.inval{border-color:var(--red)}
+.campo input{flex:1;border:0;outline:none;font:inherit;font-size:17px;background:transparent;color:var(--ink);min-width:0}
+.busca .btn{height:56px;padding:0 24px;font-size:16px;border-radius:12px}
+.recentes{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{font-size:13px;padding:6px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line);color:var(--ink);cursor:pointer;min-height:32px}
+.res{display:grid;grid-template-columns:minmax(0,1fr) auto 24px;gap:16px;align-items:center;padding:18px 24px;border:0;border-bottom:1px solid var(--line2);cursor:pointer;background:none;width:100%;text-align:left}
+.res:last-child{border-bottom:0}
+.res:hover{background:color-mix(in srgb,var(--accent-soft) 45%,transparent)}
+.res .t{display:flex;flex-direction:column;gap:4px;min-width:0}
+.res .rota{font-size:14px;color:var(--muted)} .res .rota b{color:var(--ink);font-weight:500}
+.res .ass{font-size:16px;font-weight:600;line-height:1.35;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.res .meta{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:13px;color:var(--muted)}
+.res .meta .mono{color:var(--ink2)}
+.res .tema{display:inline-block;font-size:12.5px;padding:2px 8px;border-radius:6px;background:var(--neutral-soft);color:var(--ink2);align-self:flex-start;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.filtro{display:flex;align-items:center;gap:10px;height:44px;padding:0 14px;background:var(--surface);border:1px solid var(--field);border-radius:10px;flex:1 1 220px;min-width:0;max-width:360px}
+.filtro input{flex:1;border:0;outline:none;font:inherit;font-size:14px;background:transparent;color:var(--ink);min-width:0}
+
+.voltar{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:500;min-height:44px;align-self:flex-start;border:0;background:none;color:var(--accent);cursor:pointer;padding:0}
+.ptopo{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap}
+.ptopo .esq{display:flex;flex-direction:column;gap:10px;min-width:0;flex:1}
+.ptopo h1{font-size:30px}
+.tags{display:flex;gap:8px;flex-wrap:wrap}
+.ptopo .dir{display:flex;gap:10px;flex:none}
+.entender{padding:28px 32px;display:flex;flex-direction:column;gap:28px}
+.frase-g{margin:0;font-size:24px;font-weight:600;line-height:1.35;max-width:820px}
+.jornada{list-style:none;margin:0;padding:0;display:flex;overflow-x:auto}
+.jornada li{flex:1;min-width:110px;display:flex;flex-direction:column;gap:8px;padding-right:12px}
+.jornada .bar{display:flex;align-items:center}
+.jornada .b{width:24px;height:24px;border-radius:50%;flex:none;display:grid;place-items:center;box-sizing:border-box}
+.jornada .fio{flex:1;height:2px;background:var(--line);margin-left:8px}
+.jornada li:last-child .fio{display:none}
+.jornada .concluida .b{background:var(--green);color:#fff}
+.jornada .concluida .fio{background:var(--green)}
+.jornada .atual .b{background:var(--surface);border:3px solid var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+.jornada .prevista .b{background:var(--surface);border:2px dashed var(--faint)}
+.jornada .n{font-size:14px;font-weight:500;line-height:1.3}
+.jornada .q{font-size:12.5px;color:var(--muted)}
+.jornada .atual .n{font-weight:700;color:var(--accent)} .jornada .atual .q{color:var(--accent)}
+.jornada .prevista .n{color:var(--muted)}
+.grade3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.bloco{border:1px solid var(--line2);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:6px}
+.bloco .v{font-size:17px;font-weight:600;line-height:1.3}
+.bloco .c{font-size:14px;color:var(--muted)}
+.bloco.ok{border-color:var(--green-line);background:var(--green-soft)}
+.bloco.ok .lbl{color:var(--green)} .bloco.ok .v{color:var(--green-ink)} .bloco.ok .c{color:var(--ink2)}
+.bloco.voce{border-color:color-mix(in srgb,var(--amber) 40%,transparent);background:var(--amber-soft)}
+.bloco.voce .lbl,.bloco.voce .v{color:var(--amber)}
+.atento{display:flex;flex-direction:column;gap:6px;font-size:15px;line-height:1.45}
+.atento div{display:flex;gap:10px} .atento div::before{content:"•";color:var(--red);font-weight:700}
+.rodape-ia{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-top:16px;border-top:1px solid var(--line2);font-size:13px;color:var(--muted);flex-wrap:wrap}
+.rodape-ia .lk{display:flex;gap:16px}
+.rodape-ia button{border:0;background:none;color:var(--accent);cursor:pointer;padding:6px 0;font-size:13px;min-height:32px}
+.fontes{font-size:13px;color:var(--muted);line-height:1.6}
+.cta-ia{padding:28px 32px;display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap}
+.cta-ia .tx{display:flex;flex-direction:column;gap:4px;max-width:640px}
+.cta-ia .tx b{font-size:18px}
+.msg .cabm{padding:20px 28px;display:flex;justify-content:space-between;align-items:center;gap:16px;border-bottom:1px solid var(--line2);flex-wrap:wrap}
+.msg .cabm b{font-size:18px;font-weight:600;display:block}
+.msg .corpo{padding:20px 28px;display:grid;grid-template-columns:90px minmax(0,1fr);gap:10px 16px;font-size:14.5px}
+.msg textarea{font:inherit;font-size:15px;line-height:1.6;padding:14px 16px;border:1px solid var(--field);border-radius:10px;min-height:200px;resize:vertical;color:var(--ink);background:var(--ground)}
+.abas{display:flex;gap:4px;padding:0 20px;border-bottom:1px solid var(--line2);overflow-x:auto}
+.aba{height:52px;padding:0 12px;border:0;background:none;font-size:15px;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap}
+.aba.on{color:var(--ink);font-weight:600;border-bottom-color:var(--accent)}
+.aba span{color:var(--muted);font-weight:500;margin-left:6px}
+.doc{display:grid;grid-template-columns:44px minmax(0,1fr) 110px 24px;gap:16px;align-items:center;padding:16px 28px;color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line2)}
+.doc:last-child{border-bottom:0}
+a.doc:hover{background:color-mix(in srgb,var(--accent-soft) 45%,transparent);color:var(--ink)}
+.doc .t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.doc .t b{font-weight:600}
+.doc .t span{font-size:13px;color:var(--muted)}
+.mov{display:grid;grid-template-columns:28px minmax(0,1fr);gap:14px;padding:16px 28px;border-bottom:1px solid var(--line2)}
+.mov:last-child{border-bottom:0}
+.mov .b{width:12px;height:12px;border-radius:50%;background:var(--line);margin-top:6px;justify-self:center}
+.mov.atual .b{background:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+.mov b{font-weight:600}
+.mov .q{font-size:13.5px;color:var(--muted)}
+.mov .q .pend{color:var(--amber);font-weight:600}
+dl.dados{display:grid;grid-template-columns:220px minmax(0,1fr);gap:10px 20px;margin:0;padding:20px 28px;font-size:14.5px}
+dl.dados dt{color:var(--muted)} dl.dados dd{margin:0}
+
+@media (max-width:760px){
+  .top .in{padding:0 16px;gap:12px}
+  .status .nome,.status .rot{display:none}
+  nav.vistas button{padding:0 10px}
+  main{padding:24px 16px 56px;gap:28px}
+  h1{font-size:26px} .ptopo h1{font-size:23px} .frase-g{font-size:20px}
+  .grade2,.grade3{grid-template-columns:minmax(0,1fr)}
+  .lin{grid-template-columns:minmax(0,1fr) 64px;padding:14px 16px}
+  .lin .u,.lin svg,.lin.cabl{display:none}
+  .at{padding:18px}
+  .entender,.cta-ia{padding:20px}
+  .msg .cabm,.msg .corpo{padding:16px 20px}
+  .msg .corpo{grid-template-columns:minmax(0,1fr)}
+  .doc{grid-template-columns:32px minmax(0,1fr);padding:14px 20px} .doc .dt,.doc svg{display:none}
+  .mov{padding:14px 20px}
+  dl.dados{grid-template-columns:minmax(0,1fr);padding:16px 20px}
+  .busca .btn{padding:0 16px}
+}
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+  <div class="marca"><i></i>Sigo</div>
+  <nav class="vistas" aria-label="Seções">
+    <button data-v="acomp">Acompanhar</button>
+    <button data-v="buscar">Buscar</button>
+  </nav>
+  <div class="status"><span class="pt" id="pt"></span><span id="st">verificando…</span>
+    <button class="btn" id="btnLogin" hidden style="min-height:36px">Entrar</button></div>
+</div></header>
+
+<main id="vAcomp" hidden></main>
+<main id="vBuscar" hidden>
+  <section style="display:flex;flex-direction:column;gap:14px;max-width:820px;width:100%;margin:0 auto">
+    <h1>Buscar processo</h1>
+    <form class="busca" id="form">
+      <label for="q" class="sr">Número do processo ou nome do interessado</label>
+      <div class="campo" id="campo">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--muted);flex:none"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" autocomplete="off" placeholder="23065.000000/0000-00 ou nome do interessado">
+      </div>
+      <button class="btn pri" id="btnBuscar">Buscar</button>
+    </form>
+    <p class="cinza" style="margin:0;font-size:14px">Número abre o processo direto (só da UFAL, 23065…). Um nome lista os processos do interessado, com e sem acento.</p>
+    <div class="recentes" id="recentes"></div>
+  </section>
+  <section id="saida" style="display:flex;flex-direction:column;gap:12px;max-width:820px;width:100%;margin:0 auto"></section>
+</main>
+<main id="vProc" hidden></main>
+
+<script>
+// ===================================================================== utilidades
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const store = {
+  get(k, d){ try { return JSON.parse(localStorage.getItem(k)) ?? d } catch { return d } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)) } catch {} }
+};
+const sessao = {
+  get(k){ try { return JSON.parse(sessionStorage.getItem(k)) } catch { return null } },
+  set(k, v){ try { sessionStorage.setItem(k, JSON.stringify(v)) } catch {} }
+};
+async function api(url, opt){
+  const r = await fetch(url, opt);
+  const j = await r.json().catch(() => ({erro: 'Resposta inválida do servidor'}));
+  if (!r.ok) { if (j.login) marcarStatus(false); throw new Error(j.erro || r.statusText); }
+  return j;
+}
+const sigla = u => (u || '').replace(/\s*\([\d.]+\)\s*$/, '').trim();
+const MINUSC = new Set(['de','da','do','dos','das','e','para','por','a','o','em','no','na','nos','nas','ao','à']);
+const SIGLAS = /^(UFAL|ICHCA|CPPD|DAP|CNOR|CPAG|PROGEP|CRP|SIAPE|TRD|NTI|PROPEP|PROGRAD|PROEX|RP)$/;
+const titulo = s => (s || '').toLowerCase().split(/(\s+|\/|-|\()/).map((w, i) => {
+  if (!w || /^\s+$|^[\/(-]$/.test(w)) return w;
+  if (SIGLAS.test(w.toUpperCase()) || /^(i{1,3}|iv|vi{0,3}|ix|x{1,3})\.?$/.test(w)) return w.toUpperCase();
+  if (i > 0 && MINUSC.has(w)) return w;
+  return w.charAt(0).toUpperCase() + w.slice(1);
+}).join('');
+const dias = n => n == null ? '—' : n + (n === 1 ? ' dia' : ' dias');
+const ICO = {
+  seta: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--faint)"><path d="m9 6 6 6-6 6"/></svg>',
+  voltar: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>',
+  mail: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>',
+  atualizar: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 4v5h-5"/></svg>',
+  estrela: c => `<svg width="16" height="16" viewBox="0 0 24 24" fill="${c ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>`,
+  abrir: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--faint)"><path d="M14 3h7v7"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>',
+  check: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg>',
+  ia: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M6 6l2 2M16 16l2 2M6 18l2-2M16 8l2-2"/><circle cx="12" cy="12" r="3"/></svg>'
+};
+const favoritos = () => store.get('favoritos', {});
+const ehFav = n => !!favoritos()[n];
+
+// ===================================================================== sessão SIPAC
+function marcarStatus(on, nome){
+  $('#pt').className = 'pt ' + (on ? 'on' : 'off');
+  $('#st').innerHTML = on ? (nome ? `<b class="nome">${esc(titulo(nome))}</b><span class="rot"> · SIPAC conectado</span>` : '<span class="rot">SIPAC conectado</span>') : 'sessão do SIPAC inativa';
+  $('#btnLogin').hidden = on;
+}
+async function checar(){ try { const s = await api('/api/status'); marcarStatus(s.logado, s.usuario) } catch { marcarStatus(false) } }
+$('#btnLogin').onclick = async () => {
+  $('#st').textContent = 'entrando…';
+  try { const r = await api('/api/login', {method:'POST'}); if (r.automatico) return checar(); $('#st').textContent = 'faça login na janela do Chrome…'; }
+  catch (e) { $('#st').textContent = e.message; return; }
+  const t = setInterval(async () => { await checar(); if ($('#btnLogin').hidden) clearInterval(t); }, 4000);
+};
+
+// ===================================================================== navegação
+let vista = 'acomp', origemProc = null;
+function mostrar(v){
+  vista = v;
+  $('#vAcomp').hidden = v !== 'acomp'; $('#vBuscar').hidden = v !== 'buscar'; $('#vProc').hidden = v !== 'proc';
+  const aba = v === 'proc' ? (origemProc === 'acomp' ? 'acomp' : 'buscar') : v;
+  document.querySelectorAll('nav.vistas button').forEach(b => b.classList.toggle('on', b.dataset.v === aba));
+}
+document.querySelectorAll('nav.vistas button').forEach(b => b.onclick = () => {
+  if (b.dataset.v === 'acomp') { mostrar('acomp'); renderAcomp(); verificarPendentes(); }
+  else { mostrar('buscar'); setTimeout(() => $('#q').focus(), 0); }
+});
+
+// ===================================================================== validação do nº (NUP da UFAL)
+const RE_NUM = /^\s*(\d{5})\s*\.?\s*(\d{1,6})\s*\/?\s*(\d{4})\s*-?\s*(\d{2})\s*$/;
+const pareceNumero = t => /\d/.test(t) && !/\p{L}/u.test(t);
+function dvNup(base){
+  const calc = ds => (11 - ds.reduce((s, x, i) => s + x * (ds.length + 1 - i), 0) % 11) % 10;
+  const d = [...base].map(Number); const d1 = calc(d); return `${d1}${calc([...d, d1])}`;
+}
+function validarNumero(t){
+  const m = t.match(RE_NUM);
+  if (!m) return 'Formato inválido. Use 23065.NNNNNN/AAAA-DV (ex.: 23065.029470/2026-43).';
+  const [, rad, num, ano, dv] = m;
+  if (rad !== '23065') return `Não é processo da UFAL: o número deve começar com 23065 (veio ${rad}).`;
+  if (+ano < 1990 || +ano > 2100) return `Ano ${ano} inválido.`;
+  if (dvNup(rad + num.padStart(6, '0') + ano) !== dv) return `Dígito verificador não confere (${dv}). Confira o número digitado.`;
+  return null;
+}
+
+// ===================================================================== Buscar
+let ultimaBusca = sessao.get('ultimaBusca');
+function lembrar(q){ const r = store.get('recentes', []).filter(x => x !== q); r.unshift(q); store.set('recentes', r.slice(0, 6)); recentes(); }
+function recentes(){
+  const r = store.get('recentes', []);
+  $('#recentes').innerHTML = r.length ? '<span class="cinza peq">Recentes</span>' + r.map(q => `<button class="chip ${pareceNumero(q) ? 'mono' : ''}" data-q="${esc(q)}">${esc(q)}</button>`).join('') : '';
+}
+$('#recentes').onclick = e => { const q = e.target.dataset.q; if (q) { $('#q').value = q; executar(q); } };
+$('#form').onsubmit = e => { e.preventDefault(); const q = $('#q').value.trim(); if (q) executar(q); };
+$('#q').addEventListener('input', () => $('#campo').classList.remove('inval'));
+function executar(q){
+  if (pareceNumero(q)) {
+    const p = validarNumero(q);
+    if (p) { $('#campo').classList.add('inval'); $('#saida').innerHTML = `<div class="aviso erro">${esc(p)}</div>`; return; }
+    lembrar(q); return abrir(q, null);
+  }
+  lembrar(q); listar(q);
+}
+async function listar(nome){
+  $('#saida').innerHTML = '<div class="carregando">Consultando o SIPAC…</div>'; $('#btnBuscar').disabled = true;
+  try {
+    const {resultados, mensagens} = await api('/api/buscar?q=' + encodeURIComponent(nome));
+    ultimaBusca = {q: nome, resultados, mensagens, scroll: 0, em: new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})};
+    sessao.set('ultimaBusca', ultimaBusca); mostrarLista();
+  } catch (e) { $('#saida').innerHTML = `<div class="aviso erro">${esc(e.message)}</div>`; }
+  finally { $('#btnBuscar').disabled = false; }
+}
+function pillSituacao(s){
+  s = s || '';
+  if (/RECEBER/.test(s)) return '<span class="pill p-amber">A receber</span>';
+  if (/ARQUIVADO/.test(s)) return '<span class="pill p-green">Arquivado</span>';
+  if (/APENSADO/.test(s)) return '<span class="pill p-neutro">Apensado</span>';
+  if (/ANEXADO/.test(s)) return '<span class="pill p-neutro">Anexado</span>';
+  if (/CANCELADO/.test(s)) return '<span class="pill p-neutro">Cancelado</span>';
+  return s ? `<span class="pill p-neutro">${esc(titulo(s.split(' - ')[0]))}</span>` : '';
+}
+// tema = classificação do assunto sem o código (ex.: "023.12 - PROGRESSÃO OU PROMOÇÃO DE DOCENTE" -> "Progressão ou promoção de docente")
+const tema = a => { const t = (a || '').replace(/^[\d.]+\s*-\s*/, '').toLowerCase(); return t ? t.charAt(0).toUpperCase() + t.slice(1) : ''; };
+const semAcento = t => (t || '').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
+function linhaRes(r){
+  const ass = r.detalhado && r.detalhado !== '---' ? r.detalhado : '';
+  const fav = ehFav(r.numero) ? ' <span style="color:var(--accent)" title="Acompanhando">★</span>' : '';
+  return `<button class="res" data-n="${esc(r.numero)}" data-busca="${esc(semAcento([r.numero, r.detalhado, r.assunto, r.interessados, r.ultimoDestino].join(' ')))}">
+    <span class="t">
+      ${ass ? `<span class="ass">${esc(titulo(ass))}${fav}</span>` : `<span class="ass mono" style="font-size:15px">${esc(r.numero)}${fav}</span>`}
+      ${r.assunto ? `<span class="tema" title="${esc(r.assunto)}">${esc(tema(r.assunto))}</span>` : ''}
+      <span class="meta">${ass ? `<span class="mono">${esc(r.numero)}</span>` : ''}${r.autuacao ? `<span>autuado em ${esc(r.autuacao)}</span>` : ''}<span>${esc(titulo(r.interessados))}</span></span>
+      <span class="rota">${esc(titulo(sigla(r.ultimaOrigem)))} → <b>${esc(titulo(sigla(r.ultimoDestino)))}</b></span>
+    </span>
+    ${pillSituacao(r.situacao)}${ICO.seta}</button>`;
+}
+function mostrarLista(){
+  if (!ultimaBusca) return;
+  const {q, resultados, mensagens, em} = ultimaBusca;
+  $('#q').value = q;
+  if (!resultados.length) { $('#saida').innerHTML = `<div class="aviso">${esc((mensagens || []).join(' ') || 'Nenhum processo encontrado.')}</div>`; return; }
+  const n = resultados.length;
+  $('#saida').innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <span><b id="nRes">${n} processo${n > 1 ? 's' : ''}</b> para “${esc(q)}” <span class="cinza peq">· consultado às ${esc(em || '')}</span></span>
+      ${n > 6 ? `<label class="filtro"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--muted);flex:none"><path d="M4 5h16l-6 8v5l-4 2v-7z"/></svg><span class="sr">Filtrar resultados</span><input id="filtroRes" placeholder="Filtrar por assunto ou número" value="${esc(ultimaBusca.filtro || '')}"></label>` : ''}
+    </div>
+    <div class="cartao lista" id="listaRes">${resultados.map(linhaRes).join('')}</div>
+    <div class="aviso" id="semFiltro" hidden>Nenhum processo com esse filtro.</div>`;
+  const f = $('#filtroRes');
+  if (f) { f.oninput = () => filtrar(f.value); if (f.value) filtrar(f.value); }
+}
+function filtrar(v){
+  ultimaBusca.filtro = v; sessao.set('ultimaBusca', ultimaBusca);
+  const termos = semAcento(v).split(/\s+/).filter(Boolean);
+  let vis = 0;
+  document.querySelectorAll('#listaRes .res').forEach(b => { const ok = termos.every(t => b.dataset.busca.includes(t)); b.hidden = !ok; if (ok) vis++; });
+  const n = ultimaBusca.resultados.length;
+  $('#nRes').textContent = termos.length ? `${vis} de ${n} processos` : `${n} processo${n > 1 ? 's' : ''}`;
+  $('#listaRes').hidden = !vis; $('#semFiltro').hidden = !!vis;
+}
+$('#saida').addEventListener('click', e => {
+  const b = e.target.closest('.res'); if (!b) return;
+  ultimaBusca.scroll = window.scrollY; sessao.set('ultimaBusca', ultimaBusca); abrir(b.dataset.n, 'busca');
+});
+
+// ===================================================================== Processo
+let procAtual = null;
+async function abrir(numero, origem, opcoes){
+  origemProc = origem; mostrar('proc'); window.scrollTo(0, 0);
+  $('#vProc').innerHTML = barraVoltar() + '<div class="carregando">Abrindo o processo no SIPAC…</div>';
+  try {
+    const p = await api('/api/processo?numero=' + encodeURIComponent(numero));
+    procAtual = p; renderProc(p);
+    if (opcoes && opcoes.mensagem) {
+      if (p.resumoIA && p.resumoIA.mensagem) $('#secMsg').scrollIntoView({behavior: 'smooth', block: 'start'});
+      else resumir(p, false, true);
+    }
+  } catch (e) { $('#vProc').innerHTML = barraVoltar() + `<div class="aviso erro">${esc(e.message)}</div>`; }
+}
+function barraVoltar(){
+  if (origemProc === 'busca' && ultimaBusca) return `<button class="voltar" data-voltar="busca">${ICO.voltar} Voltar para os ${ultimaBusca.resultados.length} resultados</button>`;
+  if (origemProc === 'acomp') return `<button class="voltar" data-voltar="acomp">${ICO.voltar} Voltar para Acompanhar</button>`;
+  return `<button class="voltar" data-voltar="buscar">${ICO.voltar} Voltar para a busca</button>`;
+}
+$('#vProc').addEventListener('click', e => {
+  const v = e.target.closest('[data-voltar]'); if (!v) return;
+  if (v.dataset.voltar === 'acomp') { mostrar('acomp'); renderAcomp(); }
+  else { mostrar('buscar'); if (v.dataset.voltar === 'busca') { mostrarLista(); requestAnimationFrame(() => window.scrollTo(0, ultimaBusca.scroll || 0)); } }
+});
+function tagsProc(p){
+  const o = p.ondeEsta || {}, t = [];
+  if (o.parado) t.push(`<span class="pill p-red"><i></i>Parado há ${o.diasNaUnidade} dias</span>`);
+  else if (o.unidade && !o.recebido) t.push('<span class="pill p-amber"><i></i>Aguardando recebimento</span>');
+  const s = o.situacao || p.situacao || '';
+  if (s && !/^ATIVO/.test(s)) t.push(`<span class="pill p-neutro">${esc(titulo(s.split(' - ')[0]))}</span>`);
+  return t.join('');
+}
+function renderProc(p){
+  const d = p.dados || {}, fav = ehFav(p.numero);
+  const ass = d['Assunto Detalhado'] || d['Assunto do Processo'] || '';
+  const r = p.resumoIA;
+  $('#vProc').innerHTML = `${barraVoltar()}
+    <section class="ptopo">
+      <div class="esq">
+        <span class="mono cinza" style="font-size:14px">${esc(p.numero)}</span>
+        <h1>${esc(titulo(ass))}</h1>
+        <div class="tags">${tagsProc(p)}</div>
+      </div>
+      <div class="dir">
+        <button class="btn ${fav ? 'suave' : ''}" id="btnFav" aria-pressed="${fav}">${ICO.estrela(fav)} ${fav ? 'Acompanhando' : 'Acompanhar'}</button>
+        <button class="btn" id="btnAtualizar">${ICO.atualizar} Atualizar</button>
+      </div>
+    </section>
+    <section class="cartao" id="secIA">${r ? iaHTML(r, p) : ctaIA()}</section>
+    <section class="cartao msg" id="secMsg" ${r && r.mensagem && r.mensagem.texto ? '' : 'hidden'}>${r ? msgHTML(r.mensagem) : ''}</section>
+    <section class="cartao" style="overflow:hidden">
+      <div class="abas" role="tablist">
+        <button class="aba on" role="tab" data-a="docs">Documentos<span>${p.documentos.length}</span></button>
+        <button class="aba" role="tab" data-a="movs">Movimentações<span>${p.movimentacoes.length}</span></button>
+        <button class="aba" role="tab" data-a="dados">Dados gerais</button>
+      </div>
+      <div data-p="docs">${docsHTML(p)}</div>
+      <div data-p="movs" hidden>${movsHTML(p)}</div>
+      <div data-p="dados" hidden><dl class="dados">${Object.entries(d).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></div>
+    </section>`;
+  document.querySelectorAll('#vProc .aba').forEach(b => b.onclick = () => {
+    document.querySelectorAll('#vProc .aba').forEach(x => x.classList.toggle('on', x === b));
+    document.querySelectorAll('#vProc [data-p]').forEach(x => x.hidden = x.dataset.p !== b.dataset.a);
+  });
+  $('#btnAtualizar').onclick = () => abrir(p.numero, origemProc);
+  $('#btnFav').onclick = () => {
+    const f = favoritos();
+    if (f[p.numero]) delete f[p.numero]; else f[p.numero] = ass;
+    store.set('favoritos', f); renderProc(p);
+    if (f[p.numero] && !p.resumoIA) resumir(p);  // acompanhado sem resumo: gera sozinho
+  };
+  ligarIA(p);
+}
+function docsHTML(p){
+  if (!p.documentos.length) return '<div class="vazio">Nenhum documento.</div>';
+  const docs = [...p.documentos].sort((a, b) => (+b.ordem || 0) - (+a.ordem || 0));
+  return docs.map(x => {
+    const sub = [titulo(sigla(x.origem)), x.escrito ? 'escrito no SIPAC' : (x.url ? 'arquivo anexado' : ''), x.acessoNegado ? 'acesso negado pelo SIPAC' : '']
+      .filter(Boolean).join(' · ');
+    const inner = `<span class="mono cinza" style="font-size:13px">${esc(x.ordem)}</span>
+      <span class="t"><b>${esc(titulo(x.tipo))}</b><span>${esc(sub)}</span></span>
+      <span class="dt cinza" style="font-size:14px">${esc(x.data)}</span>`;
+    return x.url && !x.acessoNegado
+      ? `<a class="doc" href="/api/arquivo?u=${encodeURIComponent(x.url)}" target="_blank" rel="noopener">${inner}${ICO.abrir}</a>`
+      : `<div class="doc" style="opacity:.7">${inner}<span></span></div>`;
+  }).join('');
+}
+function movsHTML(p){
+  if (!p.movimentacoes.length) return '<div class="vazio">Sem movimentações.</div>';
+  const dt = s => { const m = (s || '').match(/(\d{2})\/(\d{2})\/(\d{4})/); return m ? +(m[3] + m[2] + m[1]) : 0; };
+  const ms = [...p.movimentacoes].sort((a, b) => dt(b.enviadoEm) - dt(a.enviadoEm) || (+b.ordem || 0) - (+a.ordem || 0));
+  return ms.map((m, i) => `<div class="mov ${i === 0 ? 'atual' : ''}"><span class="b"></span><div>
+      <b>${esc(titulo(sigla(m.destino)))}</b>
+      <div class="q">enviado em ${esc(m.enviadoEm)} por ${esc(titulo(m.enviadoPor))}${m.urgente === 'Sim' ? ' · urgente' : ''}</div>
+      <div class="q">${m.recebidoEm === '---' ? '<span class="pend">ainda não recebido</span>' : `recebido em ${esc(m.recebidoEm)} por ${esc(titulo(m.recebidoPor))}`}</div>
+      ${m.observacao && m.observacao !== '---' ? `<div class="q">Obs.: ${esc(m.observacao)}</div>` : ''}</div></div>`).join('');
+}
+
+// ---------------------------------------------------------- resumo com IA
+function ctaIA(){
+  return `<div class="cta-ia"><div class="tx"><b>Entender este processo</b>
+      <span class="cinza">A IA lê os últimos documentos e diz em que etapa ele está, o próximo passo e se algo depende de você.</span></div>
+    <button class="btn pri" id="btnIA">${ICO.ia} Resumir com IA</button></div>`;
+}
+function iaHTML(r, p){
+  const o = p.ondeEsta || {}, pa = r.proxima_acao || {}, mim = r.depende_de_mim || [], ia = r._ia || {};
+  const etapas = r.etapas || [];
+  const jornada = etapas.length ? '<ol class="jornada">' + etapas.map(e => {
+    const st = ['concluida', 'atual', 'prevista'].includes(e.estado) ? e.estado : 'concluida';
+    const q = st === 'atual' ? `agora${o.diasNaUnidade != null ? ' · ' + dias(o.diasNaUnidade) : ''}` : (e.data || (st === 'prevista' ? 'prevista' : ''));
+    return `<li class="${st}"><div class="bar"><span class="b">${st === 'concluida' ? ICO.check : ''}</span><span class="fio"></span></div>
+      <span class="n">${esc(e.etapa)}</span><span class="q">${esc(q)}</span></li>`;
+  }).join('') + '</ol>' : '';
+  const voce = mim.length
+    ? `<div class="bloco voce"><span class="lbl">Com você</span>${mim.map(x => `<span class="v">${esc(x.acao)}</span><span class="c">Prazo: ${esc(x.prazo)} · ${esc(x.documento)}</span>`).join('')}</div>`
+    : '<div class="bloco ok"><span class="lbl">Com você</span><span class="v">Nada pendente agora</span><span class="c">pelos documentos lidos</span></div>';
+  const alertas = (r.alertas || []).slice(0, 3);
+  return `<div class="entender">
+    <div style="display:flex;flex-direction:column;gap:8px"><span class="lbl">Em uma frase</span>
+      <p class="frase-g">${esc(r.manchete || r.situacao_atual || '')}</p></div>
+    ${jornada}
+    <div class="grade3">
+      <div class="bloco"><span class="lbl">Onde está</span><span class="v">${esc(titulo(sigla(o.unidade)))}</span>
+        <span class="c">${o.recebido ? `Recebido em ${esc(o.recebidoEm)}${o.recebidoPor ? ' por ' + esc(titulo(o.recebidoPor)) : ''}` : `Enviado em ${esc(o.enviadoEm)}, ainda não recebido`}</span></div>
+      <div class="bloco"><span class="lbl">Próximo passo</span><span class="v">${esc(pa.o_que || '—')}</span>
+        <span class="c">${pa.quem ? 'Com ' + esc(pa.quem) : ''}${pa.base ? ' · base: ' + esc(pa.base) : ''}</span></div>
+      ${voce}
+    </div>
+    ${alertas.length ? `<div style="display:flex;flex-direction:column;gap:8px"><span class="lbl">Fique atento</span><div class="atento">${alertas.map(a => `<div><span>${esc(a)}</span></div>`).join('')}</div></div>` : ''}
+    <div class="rodape-ia"><span>Resumo por IA (${esc(ia.modelo || ia.provedor || '')}) a partir dos últimos documentos · ${esc(r._geradoEm || '')} · pode conter erros</span>
+      <span class="lk"><button id="btnFontes">Ver fontes</button><button id="btnReIA">Gerar de novo</button></span></div>
+    <div class="fontes" id="fontes" hidden><p style="margin:0 0 6px"><b>Histórico:</b> ${esc(r.resumo || '')}</p>
+      ${(r._docsLidos || []).length ? 'Documentos lidos: ' + r._docsLidos.map(esc).join('; ') : ''}</div>
+  </div>`;
+}
+function msgHTML(m){
+  if (!m || !m.texto) return '';
+  return `<div class="cabm"><div><b>Destravar o processo</b><span class="cinza" style="font-size:14px">${esc(m.objetivo || 'Mensagem sugerida para quem está com ele agora')}</span></div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="cinza peq" id="msgOk"></span>
+        <button class="btn" id="btnCopiar">Copiar</button>
+        <button class="btn pri" id="btnGmail" data-email="${esc(m.email || '')}">${ICO.mail} Abrir no Gmail</button></div></div>
+    <div class="corpo">
+      <span class="cinza">Para</span><span><b>${esc(m.destinatario)}</b>${m.email ? ' · ' + esc(m.email) : ''}${m.telefone ? ' · tel. ' + esc(m.telefone) : ''}</span>
+      <span class="cinza">Assunto</span><span id="msgAssunto">${esc(m.assunto)}</span>
+      <label for="msgTexto" class="cinza">Mensagem</label>
+      <textarea id="msgTexto">${esc(m.texto)}</textarea>
+    </div>`;
+}
+function ligarIA(p){
+  const b = $('#btnIA'); if (b) b.onclick = () => resumir(p);
+  const re = $('#btnReIA'); if (re) re.onclick = () => resumir(p, true);
+  const f = $('#btnFontes'); if (f) f.onclick = () => { $('#fontes').hidden = !$('#fontes').hidden; };
+  const c = $('#btnCopiar');
+  if (c) c.onclick = async () => {
+    const t = `Assunto: ${$('#msgAssunto').textContent}\n\n${$('#msgTexto').value}`;
+    try { await navigator.clipboard.writeText(t); } catch { $('#msgTexto').select(); document.execCommand('copy'); }
+    $('#msgOk').textContent = 'copiada ✓';
+  };
+  const g = $('#btnGmail');
+  if (g) g.onclick = () => {
+    const u = new URL('https://mail.google.com/mail/');
+    u.search = new URLSearchParams({view: 'cm', fs: '1', to: g.dataset.email || '', su: $('#msgAssunto').textContent, body: $('#msgTexto').value}).toString();
+    window.open(u.toString(), '_blank', 'noopener');
+  };
+}
+async function resumir(p, forcar, irParaMsg){
+  $('#secIA').innerHTML = '<div class="entender"><div class="carregando" style="padding:0">Lendo os últimos documentos e montando o resumo… (até 1 minuto)</div></div>';
+  try {
+    const r = await api('/api/resumo' + (forcar ? '?forcar=true' : ''), {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(p)});
+    p.resumoIA = r;
+    if (procAtual !== p || vista !== 'proc') return;
+    $('#secIA').innerHTML = iaHTML(r, p);
+    const sm = $('#secMsg'); sm.innerHTML = msgHTML(r.mensagem); sm.hidden = !(r.mensagem && r.mensagem.texto);
+    ligarIA(p);
+    if (irParaMsg && !sm.hidden) sm.scrollIntoView({behavior: 'smooth', block: 'start'});
+  } catch (e) {
+    if (procAtual !== p) return;
+    $('#secIA').innerHTML = `<div class="cta-ia"><div class="tx"><b>Não foi possível gerar o resumo</b><span class="cinza">${esc(e.message)}</span></div><button class="btn" id="btnIA">Tentar de novo</button></div>`;
+    $('#btnIA').onclick = () => resumir(p, forcar, irParaMsg);
+  }
+}
+
+// ===================================================================== Acompanhar
+let verificando = false, progresso = '';
+const ultimas = () => store.get('ultimaVerificacao', {});
+const vistos = () => store.get('vistos', {});
+function novidades(n, f){ return (f && f.mudancas && f.mudancas.length && vistos()[n] !== f.verificadoEm) ? f.mudancas : []; }
+function motivo(n, f){
+  if (!f || !f.unidade) return null;
+  if (((f.ia && f.ia.comVoce) || []).length) return {cls: 'p-amber', txt: 'Com você', peso: 4};
+  if (f.parado) return {cls: 'p-red', txt: `Parado há ${f.diasNaUnidade} dias`, peso: 3};
+  if (novidades(n, f).length) return {cls: 'p-blue', txt: 'Novidade', peso: 2};
+  return null;
+}
+function haQuanto(s){
+  const m = (s || '').match(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2})/); if (!m) return '';
+  const min = Math.round((Date.now() - new Date(+m[3], m[2] - 1, +m[1], +m[4], +m[5])) / 60000);
+  return min < 1 ? 'agora' : min < 60 ? `há ${min} min` : min < 1440 ? `há ${Math.round(min / 60)} h` : `há ${Math.round(min / 1440)} dias`;
+}
+const chaveData = s => { const m = (s || '').match(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2})/); return m ? m[3] + m[2] + m[1] + m[4] + m[5] : ''; };
+function cartaoAtencao(n, f, mo){
+  const nov = novidades(n, f), ia = f.ia || {};
+  const frase = mo.txt === 'Novidade' ? nov.map(t => t.replace(/:\s*(.+)$/, (_, r) => ': ' + titulo(r))).join('. ') : (ia.manchete || '');
+  const podePedir = f.parado || !f.recebido;
+  return `<article class="cartao at">
+    <div class="l1"><span class="pill ${mo.cls}"><i></i>${esc(mo.txt)}</span><span class="mono cinza" style="font-size:12.5px">${esc(n)}</span></div>
+    <div><h3>${esc(titulo(f.assunto || favoritos()[n] || ''))}</h3>${frase ? `<p class="frase">${esc(frase)}</p>` : ''}</div>
+    <div class="fatos">
+      <div><span>Está em</span><b title="${esc(f.unidade)}">${esc(titulo(sigla(f.unidade)))}</b></div>
+      <div><span>${f.recebido ? 'Desde' : 'Enviado em'}</span><b>${esc(f.recebido ? f.recebidoEm : f.enviadoEm)}</b></div>
+      ${(ia.comVoce || []).length ? `<div><span>Você precisa</span><b title="${esc(ia.comVoce.join('; '))}" style="color:var(--amber)">${esc(ia.comVoce[0])}</b></div>`
+        : (ia.proxima ? `<div><span>Próximo passo</span><b title="${esc(ia.proxima)}">${esc(ia.proxima)}</b></div>` : '')}
+    </div>
+    <div class="botoes">
+      ${podePedir ? `<button class="btn pri" data-pedir="${esc(n)}">${ICO.mail} Pedir andamento</button>` : ''}
+      <button class="btn" data-abrir="${esc(n)}">Ver processo</button>
+      ${nov.length ? `<button class="btn leve" data-visto="${esc(n)}">Marcar como visto</button>` : ''}
+    </div></article>`;
+}
+function linhaNormal(n, f){
+  f = f || {};
+  const onde = f.unidade ? esc(titulo(sigla(f.unidade))) + (f.recebido ? '' : ' <span class="cinza">· a receber</span>')
+                         : `<span class="cinza">${f.erro ? 'não foi possível verificar' : 'verificando…'}</span>`;
+  return `<button class="lin" data-abrir="${esc(n)}">
+    <span class="t"><b>${esc(titulo(f.assunto || favoritos()[n] || n))}</b><span class="mono">${esc(n)}</span></span>
+    <span class="u" title="${esc(f.unidade || '')}">${onde}</span>
+    <span class="d">${f.unidade ? dias(f.diasNaUnidade) : ''}</span>${ICO.seta}</button>`;
+}
+function renderAcomp(){
+  const favs = Object.keys(favoritos()), ult = ultimas();
+  const quando = favs.map(n => ult[n] && ult[n].verificadoEm).filter(Boolean).sort((a, b) => chaveData(a) < chaveData(b) ? -1 : 1).pop();
+  const cab = sub => `<section class="cab"><div class="tit"><h1>Acompanhar</h1><p class="sub">${sub}</p></div>
+    <div class="acao"><span class="cinza peq">${verificando ? esc(progresso) : (quando ? 'Verificado ' + haQuanto(quando) : '')}</span>
+      <button class="btn" id="btnVerificar" ${verificando || !favs.length ? 'disabled' : ''}>${ICO.atualizar} Verificar agora</button></div></section>`;
+  if (!favs.length) {
+    $('#vAcomp').innerHTML = cab('Nenhum processo acompanhado ainda.') + `<div class="cartao vazio" style="padding:40px">
+      Abra um processo e toque em <b>Acompanhar</b> para vê-lo aqui.<br><br><button class="btn pri" id="irBuscar">Buscar processo</button></div>`;
+    $('#irBuscar').onclick = () => document.querySelector('nav.vistas button[data-v=buscar]').click();
+    return;
+  }
+  const atencao = [], normal = [];
+  favs.forEach(n => { const mo = motivo(n, ult[n]); (mo ? atencao : normal).push({n, mo}); });
+  atencao.sort((a, b) => b.mo.peso - a.mo.peso || (ult[b.n].diasNaUnidade || 0) - (ult[a.n].diasNaUnidade || 0));
+  normal.sort((a, b) => ((ult[b.n] || {}).diasNaUnidade || 0) - ((ult[a.n] || {}).diasNaUnidade || 0));
+  const plural = (k, s, p) => k === 1 ? s : p;
+  const sub = atencao.length
+    ? `<b>${atencao.length} de ${favs.length} ${plural(favs.length, 'processo', 'processos')}</b> ${plural(atencao.length, 'pede', 'pedem')} sua atenção.`
+    : `Tudo andando: <b>${favs.length} ${plural(favs.length, 'processo', 'processos')}</b> sem pendências.`;
+  $('#vAcomp').innerHTML = cab(sub)
+    + (atencao.length ? `<section style="display:flex;flex-direction:column;gap:16px"><h2 class="lbl">Precisa de atenção</h2>
+        <div class="grade2">${atencao.map(x => cartaoAtencao(x.n, ult[x.n], x.mo)).join('')}</div></section>` : '')
+    + (normal.length ? `<section style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline"><h2 class="lbl">${atencao.length ? 'Andando normalmente' : 'Seus processos'}</h2><span class="cinza peq">${normal.length} ${plural(normal.length, 'processo', 'processos')}</span></div>
+        <div class="cartao lista"><div class="lin cabl"><span>Processo</span><span>Onde está</span><span style="text-align:right">Na unidade</span><span></span></div>
+        ${normal.map(x => linhaNormal(x.n, ult[x.n])).join('')}</div></section>` : '');
+  $('#btnVerificar').onclick = () => verificar(Object.keys(favoritos()));
+}
+$('#vAcomp').addEventListener('click', e => {
+  const a = e.target.closest('[data-abrir]'), p = e.target.closest('[data-pedir]'), v = e.target.closest('[data-visto]');
+  if (p) abrir(p.dataset.pedir, 'acomp', {mensagem: true});
+  else if (a) abrir(a.dataset.abrir, 'acomp');
+  else if (v) { const vs = vistos(); vs[v.dataset.visto] = ultimas()[v.dataset.visto].verificadoEm; store.set('vistos', vs); renderAcomp(); }
+});
+async function verificar(lista){
+  if (verificando || !lista.length) return;
+  verificando = true;
+  const ult = ultimas();
+  for (let i = 0; i < lista.length; i++) {
+    progresso = `Verificando ${i + 1} de ${lista.length}…`; if (vista === 'acomp') renderAcomp();
+    try { ult[lista[i]] = await api('/api/acompanhar?numero=' + encodeURIComponent(lista[i])); }
+    catch (e) { ult[lista[i]] = {...(ult[lista[i]] || {}), erro: e.message, mudancas: []}; }
+    store.set('ultimaVerificacao', ult);
+  }
+  verificando = false; progresso = '';
+  if (vista === 'acomp') renderAcomp();
+}
+function verificarPendentes(){
+  const ult = ultimas();
+  verificar(Object.keys(favoritos()).filter(n => !(ult[n] && ult[n].unidade)));
+}
+
+// ===================================================================== início
+recentes(); checar(); setInterval(checar, 120000);
+if (Object.keys(favoritos()).length) { mostrar('acomp'); renderAcomp(); verificarPendentes(); }
+else mostrar('buscar');
+</script>
+</body>
+</html>

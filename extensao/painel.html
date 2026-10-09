@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sigo</title>
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header class="top">
+  <div class="in">
+    <div class="marca"><img src="icons/48.png" alt="">Sigo</div>
+    <nav class="vistas" aria-label="Seções">
+      <button data-v="acomp">Acompanhar</button>
+      <button data-v="buscar">Buscar</button>
+    </nav>
+    <div class="dir">
+      <button class="ico" id="btnAba" title="Abrir em uma aba" aria-label="Abrir em uma aba">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h7v7"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>
+      </button>
+      <button class="ico" id="btnConfig" title="Configurações" aria-label="Configurações">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="status"><span class="pt" id="pt"></span><span id="st">verificando a sessão do SIPAC…</span>
+    <button id="btnLogin" hidden>Entrar no SIPAC</button><button id="btnSair" hidden>Desconectar</button></div>
+</header>
+
+<main id="vAcomp" hidden></main>
+<main id="vBuscar" hidden>
+  <section style="display:flex;flex-direction:column;gap:12px">
+    <h1>Buscar processo</h1>
+    <form class="busca" id="form">
+      <label for="q" class="sr">Número do processo ou nome do interessado</label>
+      <div class="campo" id="campo">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--muted);flex:none"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" autocomplete="off" placeholder="23065.000000/0000-00 ou nome">
+      </div>
+      <button class="btn pri" id="btnBuscar">Buscar</button>
+    </form>
+    <p class="cinza peq" style="margin:0">Um número abre o processo direto (só da UFAL, 23065…). Um nome lista os processos do interessado, com e sem acento.</p>
+    <div class="recentes" id="recentes"></div>
+  </section>
+  <section id="saida" style="display:flex;flex-direction:column;gap:10px"></section>
+</main>
+<main id="vProc" hidden></main>
+
+<footer class="rod">Sigo · Desenvolvido por <a href="mailto:andre.lage@ichca.ufal.br">Prof. Dr. André Lage Freitas</a> · <button id="btnTermos">Termos e privacidade</button></footer>
+
+<div class="modal" id="modal" hidden><div class="caixa" id="caixa" role="dialog" aria-modal="true"></div></div>
+
+<script type="module" src="painel.js"></script>
+</body>
+</html>

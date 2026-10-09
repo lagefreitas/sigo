@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sigo · Configurações</title>
+<link rel="stylesheet" href="estilo.css">
+<style>
+  main{max-width:720px}
+  .sec{padding:20px;display:flex;flex-direction:column;gap:14px}
+  .linha{display:flex;flex-direction:column;gap:6px}
+  .linha label{font-size:13px;font-weight:600;color:var(--ink2)}
+  .linha input[type=text],.linha input[type=password],.linha input[type=number],.linha select{height:42px;padding:0 12px;border:1px solid var(--field);border-radius:10px;background:var(--surface);font-size:14px;width:100%}
+  .provs{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+  .prov{display:flex;gap:10px;align-items:center;padding:12px;border:1px solid var(--field);border-radius:10px;cursor:pointer;font-size:14px;font-weight:600}
+  .prov:has(input:checked){border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+  .botoes{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .ok{color:var(--green)} .ruim{color:var(--red)}
+  .chave{display:flex;gap:8px} .chave input{flex:1}
+  .interruptor{display:flex;gap:12px;align-items:flex-start;cursor:pointer}
+  .interruptor input{width:20px;height:20px;margin-top:2px;flex:none}
+  .interruptor b{display:block}
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+  <button class="btn leve" id="btnVoltarSigo" style="padding:0 8px;color:var(--accent)">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>
+    Voltar ao Sigo</button>
+  <div class="marca"><img src="icons/48.png" alt="">Configurações</div>
+</div></header>
+<main>
+  <section class="cartao sec">
+    <h2>Inteligência artificial</h2>
+    <p class="cinza peq" style="margin:0">A IA é opcional. Ela usa a <b>sua própria chave</b> de um provedor. As chamadas saem direto do seu navegador para o provedor, e o custo fica na sua conta. O Sigo não tem servidor e não vê a sua chave.</p>
+    <label class="interruptor"><input type="checkbox" id="ativa"><span><b>Usar IA no Sigo</b><span class="cinza peq">Ao ativar, você verá um aviso sobre o envio de dados e precisará aceitá-lo.</span></span></label>
+  </section>
+
+  <section class="cartao sec" id="secProvedor">
+    <h2>Provedor e chave</h2>
+    <div class="provs" id="provs"></div>
+    <div class="linha">
+      <label for="chave">Chave de API <a id="lnkChave" target="_blank" rel="noopener" class="peq" style="font-weight:400">onde obter</a></label>
+      <div class="chave"><input type="password" id="chave" autocomplete="off" spellcheck="false" placeholder="cole a sua chave aqui">
+        <button class="btn" id="btnVer" type="button">Mostrar</button></div>
+    </div>
+    <div class="linha">
+      <label for="modelo">Modelo</label>
+      <input type="text" id="modelo" list="listaModelos" autocomplete="off" spellcheck="false">
+      <datalist id="listaModelos"></datalist>
+      <span class="cinza peq">Teste a chave para ver os modelos disponíveis na sua conta.</span>
+    </div>
+    <div class="botoes">
+      <button class="btn pri" id="btnSalvar">Salvar</button>
+      <button class="btn" id="btnTestar">Testar chave</button>
+      <button class="btn perigo" id="btnApagar">Apagar chave</button>
+      <span class="peq" id="msgChave"></span>
+    </div>
+    <p class="cinza peq" style="margin:0">A chave fica guardada só neste navegador e não é sincronizada com outros dispositivos. Para reduzir riscos, crie uma chave só para o Sigo e defina um limite de gasto no painel do provedor.</p>
+  </section>
+
+  <section class="cartao sec">
+    <h2>O que a IA lê</h2>
+    <div class="linha">
+      <label for="maxDocs">Quantos documentos finais do processo enviar</label>
+      <input type="number" id="maxDocs" min="1" max="20" step="1" style="max-width:120px">
+      <span class="cinza peq">Menos documentos significa menos dados enviados e menor custo.</span>
+    </div>
+    <label class="interruptor"><input type="checkbox" id="restritos"><span><b>Permitir IA em processos e documentos restritos ou sigilosos</b><span class="cinza peq">Desligado por padrão. Ao ligar, você precisará aceitar um aviso específico.</span></span></label>
+  </section>
+
+  <section class="cartao sec">
+    <h2>Privacidade</h2>
+    <p class="peq" style="margin:0">O Sigo não tem servidor e não coleta dados. Favoritos, histórico de acompanhamento, resumos e a chave de IA ficam só neste navegador.</p>
+    <p class="peq cinza" style="margin:0" id="infoAceites"></p>
+    <div class="botoes">
+      <button class="btn" id="btnTermos">Ler os termos de uso</button>
+      <button class="btn perigo" id="btnLimpar">Apagar todos os dados do Sigo</button>
+    </div>
+  </section>
+  <div style="display:flex;justify-content:center"><button class="btn pri" id="btnVoltarSigo2">Voltar ao Sigo</button></div>
+</main>
+<footer class="rod">Sigo · Desenvolvido por <a href="mailto:andre.lage@ichca.ufal.br">Prof. Dr. André Lage Freitas</a></footer>
+<div class="modal" id="modal" hidden><div class="caixa" id="caixa" role="dialog" aria-modal="true"></div></div>
+<script type="module" src="opcoes.js"></script>
+</body>
+</html>

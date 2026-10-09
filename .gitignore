@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+secret.env
+*.env
+_to_delete/
+node_modules/
+*.zip
+.DS_Store
