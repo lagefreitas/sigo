@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Sigo — processos do SIPAC",
   "short_name": "Sigo",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Consulte e acompanhe processos do SIPAC/UFAL de forma simples, com resumo opcional por IA usando a sua própria chave.",
   "minimum_chrome_version": "116",
   "permissions": [
