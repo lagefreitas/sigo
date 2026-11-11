@@ -76,6 +76,10 @@ main{max-width:1120px;margin:0 auto;padding:20px 14px 24px;display:flex;flex-dir
 .busca .btn{height:48px;border-radius:12px}
 .recentes{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .chip{font-size:12.5px;padding:4px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--line);cursor:pointer;min-height:30px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.recente{display:inline-flex;align-items:center;max-width:100%;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
+.recente .chip{border:0;background:none;padding-right:2px;min-width:0}
+.recente .rm{border:0;background:none;color:var(--faint);cursor:pointer;font-size:15px;line-height:1;padding:0 10px 0 4px;min-height:inherit;align-self:stretch;border-radius:0 999px 999px 0}
+.recente .rm:hover,.recente .rm:focus-visible{color:var(--red)}
 .res{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start;padding:14px 16px;border:0;border-bottom:1px solid var(--line2);cursor:pointer;background:none;width:100%;text-align:left}
 .res:last-child{border-bottom:0}
 .res:hover,.lin:hover,a.doc:hover{background:color-mix(in srgb,var(--accent-soft) 45%,transparent)}

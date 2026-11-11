@@ -1,5 +1,5 @@
 import * as sipac from './lib/sipac.js';
-import { pareceNumero, erroNumero } from './lib/nup.js';
+import { pareceNumero, erroNumero, limpar } from './lib/nup.js';
 import { ondeEsta, assinatura, foto, mudancas, iaCurta, processoRestrito, naturezaDesconhecida, ehRestrito, agora } from './lib/processo.js';
 import * as ia from './lib/ia.js';
 import { S, carregar, salvar, termosAceitos, iaPronta, TERMOS_HTML, VERSAO_TERMOS, agoraISO } from './lib/config.js';
@@ -103,10 +103,14 @@ function lembrar(q) {
 }
 function recentes() {
   const r = S.recentes || [];
-  $('#recentes').innerHTML = r.length ? '<span class="cinza peq">Recentes</span>' + r.map(q => `<button class="chip ${pareceNumero(q) ? 'mono' : ''}" data-q="${esc(q)}">${esc(q)}</button>`).join('') : '';
+  $('#recentes').innerHTML = r.length ? '<span class="cinza peq">Recentes</span>' + r.map(q => `<span class="recente"><button class="chip ${pareceNumero(q) ? 'mono' : ''}" data-q="${esc(q)}">${esc(q)}</button><button class="rm" data-rm="${esc(q)}" title="Remover dos recentes" aria-label="Remover ${esc(q)} dos recentes">×</button></span>`).join('') : '';
 }
-$('#recentes').onclick = e => { const q = e.target.dataset.q; if (q) { $('#q').value = q; executar(q); } };
-$('#form').onsubmit = e => { e.preventDefault(); const q = $('#q').value.trim(); if (q) executar(q); };
+function esquecer(q) { salvar('recentes', (S.recentes || []).filter(x => x !== q)); recentes(); }
+$('#recentes').onclick = e => {
+  const rm = e.target.closest('[data-rm]'); if (rm) return esquecer(rm.dataset.rm);
+  const q = e.target.dataset.q; if (q) { $('#q').value = q; executar(q); }
+};
+$('#form').onsubmit = e => { e.preventDefault(); const q = limpar($('#q').value); if (q) executar(q); };
 $('#q').addEventListener('input', () => $('#campo').classList.remove('inval'));
 function executar(q) {
   if (pareceNumero(q)) {

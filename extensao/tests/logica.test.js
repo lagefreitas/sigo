@@ -17,6 +17,17 @@ test('NUP inválido é recusado antes de consultar o SIPAC', () => {
   assert.equal(pareceNumero('23065.029470/2026-43'), true);
   assert.equal(pareceNumero('Maria 2'), false);
 });
+test('NUP sem DV é aceito (o SIPAC busca sem ele)', () => {
+  const p = validarNumero('23065.013422/2026');
+  assert.equal(p.dv, '');
+  assert.equal(p.formatado, '23065.013422/2026');
+  assert.equal(validarNumero('230650134222026').numero, '013422');
+  assert.match(erroNumero('23065.013422/2026-34'), /Dígito verificador/);
+});
+test('caracteres invisíveis de texto colado são ignorados', () => {
+  assert.equal(validarNumero('\u206023065.013422/2026-33').formatado, '23065.013422/2026-33');
+  assert.equal(validarNumero('\u200B23065.013422/2026-33\uFEFF').dv, '33');
+});
 
 const proc = {
   numero: '23065.029470/2026-43', situacao: 'ATIVO',

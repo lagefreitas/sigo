@@ -100,6 +100,10 @@ h1{margin:0;font-size:32px;font-weight:700;letter-spacing:-.01em;line-height:1.2
 .busca .btn{height:56px;padding:0 24px;font-size:16px;border-radius:12px}
 .recentes{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .chip{font-size:13px;padding:6px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line);color:var(--ink);cursor:pointer;min-height:32px}
+.recente{display:inline-flex;align-items:center;max-width:100%;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
+.recente .chip{border:0;background:none;padding-right:2px;min-width:0}
+.recente .rm{border:0;background:none;color:var(--faint);cursor:pointer;font-size:15px;line-height:1;padding:0 10px 0 4px;min-height:inherit;align-self:stretch;border-radius:0 999px 999px 0}
+.recente .rm:hover,.recente .rm:focus-visible{color:var(--red)}
 .res{display:grid;grid-template-columns:minmax(0,1fr) auto 24px;gap:16px;align-items:center;padding:18px 24px;border:0;border-bottom:1px solid var(--line2);cursor:pointer;background:none;width:100%;text-align:left}
 .res:last-child{border-bottom:0}
 .res:hover{background:color-mix(in srgb,var(--accent-soft) 45%,transparent)}
@@ -294,19 +298,20 @@ document.querySelectorAll('nav.vistas button').forEach(b => b.onclick = () => {
 });
 
 // ===================================================================== validação do nº (NUP da UFAL)
-const RE_NUM = /^\s*(\d{5})\s*\.?\s*(\d{1,6})\s*\/?\s*(\d{4})\s*-?\s*(\d{2})\s*$/;
+const RE_NUM = /^\s*(\d{5})\s*\.?\s*(\d{1,6})\s*\/?\s*(\d{4})(?:\s*-?\s*(\d{2}))?\s*$/;
+const limpar = t => (t || '').replace(/\p{Cf}/gu, '').trim();  // tira invisíveis de texto colado (U+2060, U+200B…)
 const pareceNumero = t => /\d/.test(t) && !/\p{L}/u.test(t);
 function dvNup(base){
   const calc = ds => (11 - ds.reduce((s, x, i) => s + x * (ds.length + 1 - i), 0) % 11) % 10;
   const d = [...base].map(Number); const d1 = calc(d); return `${d1}${calc([...d, d1])}`;
 }
 function validarNumero(t){
-  const m = t.match(RE_NUM);
-  if (!m) return 'Formato inválido. Use 23065.NNNNNN/AAAA-DV (ex.: 23065.029470/2026-43).';
+  const m = limpar(t).match(RE_NUM);
+  if (!m) return 'Formato inválido. Use 23065.NNNNNN/AAAA, com ou sem o DV (ex.: 23065.029470/2026-43).';
   const [, rad, num, ano, dv] = m;
   if (rad !== '23065') return `Não é processo da UFAL: o número deve começar com 23065 (veio ${rad}).`;
   if (+ano < 1990 || +ano > 2100) return `Ano ${ano} inválido.`;
-  if (dvNup(rad + num.padStart(6, '0') + ano) !== dv) return `Dígito verificador não confere (${dv}). Confira o número digitado.`;
+  if (dv && dvNup(rad + num.padStart(6, '0') + ano) !== dv) return `Dígito verificador não confere (${dv}). Confira o número digitado.`;
   return null;
 }
 
@@ -315,10 +320,14 @@ let ultimaBusca = sessao.get('ultimaBusca');
 function lembrar(q){ const r = store.get('recentes', []).filter(x => x !== q); r.unshift(q); store.set('recentes', r.slice(0, 6)); recentes(); }
 function recentes(){
   const r = store.get('recentes', []);
-  $('#recentes').innerHTML = r.length ? '<span class="cinza peq">Recentes</span>' + r.map(q => `<button class="chip ${pareceNumero(q) ? 'mono' : ''}" data-q="${esc(q)}">${esc(q)}</button>`).join('') : '';
+  $('#recentes').innerHTML = r.length ? '<span class="cinza peq">Recentes</span>' + r.map(q => `<span class="recente"><button class="chip ${pareceNumero(q) ? 'mono' : ''}" data-q="${esc(q)}">${esc(q)}</button><button class="rm" data-rm="${esc(q)}" title="Remover dos recentes" aria-label="Remover ${esc(q)} dos recentes">×</button></span>`).join('') : '';
 }
-$('#recentes').onclick = e => { const q = e.target.dataset.q; if (q) { $('#q').value = q; executar(q); } };
-$('#form').onsubmit = e => { e.preventDefault(); const q = $('#q').value.trim(); if (q) executar(q); };
+function esquecer(q){ store.set('recentes', store.get('recentes', []).filter(x => x !== q)); recentes(); }
+$('#recentes').onclick = e => {
+  const rm = e.target.closest('[data-rm]'); if (rm) return esquecer(rm.dataset.rm);
+  const q = e.target.dataset.q; if (q) { $('#q').value = q; executar(q); }
+};
+$('#form').onsubmit = e => { e.preventDefault(); const q = limpar($('#q').value); if (q) executar(q); };
 $('#q').addEventListener('input', () => $('#campo').classList.remove('inval'));
 function executar(q){
   if (pareceNumero(q)) {

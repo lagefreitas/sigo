@@ -181,7 +181,12 @@ JS_MOVIMENTOS = r"""() => {
 # ---------------------------------------------------------------- utilitários
 
 RADICAL_UFAL = "23065"
-RE_NUMERO = re.compile(r"^\s*(\d{5})\s*\.?\s*(\d{1,6})\s*/?\s*(\d{4})\s*-?\s*(\d{2})\s*$")
+RE_NUMERO = re.compile(r"^\s*(\d{5})\s*\.?\s*(\d{1,6})\s*/?\s*(\d{4})(?:\s*-?\s*(\d{2}))?\s*$")
+
+
+def limpar(texto: str) -> str:
+    """Tira caracteres invisíveis de texto colado (U+2060, U+200B, U+FEFF…) e apara as pontas."""
+    return "".join(c for c in (texto or "") if unicodedata.category(c) != "Cf").strip()
 
 
 def parece_numero(texto: str) -> bool:
@@ -202,18 +207,18 @@ def dv_nup(base15: str) -> str:
 
 def validar_numero(texto: str):
     """Valida um nº de processo da UFAL sem consultar o SIPAC.
-    Retorna (radical, numero, ano, dv) ou lança ErroSipac com o motivo."""
-    m = RE_NUMERO.match(texto or "")
+    Retorna (radical, numero, ano, dv) ou lança ErroSipac com o motivo. DV é opcional ("" se ausente)."""
+    m = RE_NUMERO.match(limpar(texto))
     if not m:
-        raise ErroSipac("Formato inválido. Use 23065.NNNNNN/AAAA-DV (ex.: 23065.029470/2026-43).")
-    radical, num, ano, dv = m.groups()
+        raise ErroSipac("Formato inválido. Use 23065.NNNNNN/AAAA, com ou sem o DV (ex.: 23065.029470/2026-43).")
+    radical, num, ano, dv = m.groups(default="")
     if radical != RADICAL_UFAL:
         raise ErroSipac(f"Não é processo da UFAL: o número deve começar com {RADICAL_UFAL} (veio {radical}).")
     num = num.zfill(6)
     if not 1990 <= int(ano) <= 2100:
         raise ErroSipac(f"Ano {ano} inválido.")
     esperado = dv_nup(radical + num + ano)
-    if dv != esperado:
+    if dv and dv != esperado:
         raise ErroSipac(f"Dígito verificador não confere ({dv}). Confira o número digitado.")
     return radical, num, ano, dv
 
